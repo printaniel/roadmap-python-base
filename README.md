@@ -1,7 +1,17 @@
-| Archivo                | Contenido                                   |
-| ---------------------- | ------------------------------------------- |
-| variables\_y\_tipos.py | Tipos básicos, input, output                |
-| condicionales.py       | Estructuras if/elif/else                    |
-| bucles.py              | For, while, break, continue                 |
-| funciones.py           | Funciones con \*args, \*\*kwargs, y ámbitos |
-|funciones.py            |	Funciones con *args, **kwargs, y ámbitos   |
+# Progreso – Roadmap Python Base
+Este repositorio contiene el progreso de los bloques de estudio estructurado para dominar Python desde sus fundamentos hasta la Programación Orientada a Objetos, como parte del roadmap para backend con Django.
+| Bloque | Archivo/Carpeta              | Contenido                                                                |
+|--------|------------------------------|--------------------------------------------------------------------------|
+| 1      | variables_y_tipos.py         | Tipos básicos, input, conversión de tipos                                |
+|        | condicionales.py             | if, elif, else, operadores lógicos y comparadores                        |
+|        | bucles.py                    | for, while, break, continue                                               |
+|        | funciones.py                 | Funciones, *args, **kwargs, alcance de variables                         |
+| 2      | listas_y_tuplas.py           | Métodos de listas, tuplas, slicing, desempaquetado                       |
+|        | diccionarios_y_sets.py       | Diccionarios, sets, operaciones de conjunto                              |
+|        | estructuras_mixtas.py        | Ejercicios combinados con lógica y estructuras                           |
+| 3      | manejo_errores.py            | Manejo de excepciones con try/except/else/finally                        |
+|        | validaciones.py              | Validaciones con raise, errores personalizados                           |
+|        | tests_basicos.py             | Tests con assert, cobertura de casos simples y fallos                    |
+| 4      | modulos_basicos/             | Módulos personalizados, importaciones                                    |
+|        | main_vs_modulo.py            | Uso de `__name__ == "__main__"`                                          |
+|        | entorno_virtual/             | venv, instalación de paquetes, requests, requirements.txt                |
