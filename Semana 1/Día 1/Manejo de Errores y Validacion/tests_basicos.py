@@ -47,3 +47,4 @@ def test_formatear_nombre():
     assert formatear_nombre("Samantha") == "Samatha"
 
 test_formatear_nombre()
+
