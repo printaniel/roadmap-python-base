@@ -1,6 +1,10 @@
-| Archivo                  | Qué contiene                         |
-| ------------------------ | ------------------------------------ |
-| clase\_basica.py         | Primer contacto con clases y objetos |
-| metodos\_y\_atributos.py | Métodos y uso de `self`              |
-| init\_y\_objetos.py      | Constructor `__init__` y atributos   |
-| poo\_mini\_proyectos.py  | Uso práctico de clases y lógica real |
+| Archivo                      | Qué contiene                                                        |
+| ---------------------------- | ------------------------------------------------------------------- |
+| clase_basica.py              | Primer contacto con clases y objetos                                |
+| metodos_y_atributos.py       | Métodos y uso de `self`                                             |
+| init_y_objetos.py            | Constructor `__init__` y atributos                                  |
+| poo_mini_proyectos.py        | Uso práctico de clases y lógica real                                |
+| encapsulacion.py             | Atributos privados, getters/setters, uso de `@property`             |
+| herencia.py                  | Herencia, clases hijas, `super()`, y override                       |
+| polimorfismo.py              | Métodos comunes en múltiples clases, uso de polimorfismo            |
+| poo_proyecto_extendido.py    | Proyecto con POO completa: herencia, encapsulación y polimorfismo   |
