@@ -1,0 +1,4 @@
+Python es un lenguaje de programación de alto nivel, muy utilizado por su sintaxis clara y legibilidad. A diferencia de otros lenguajes, Python permite desarrollar desde scripts sencillos hasta aplicaciones complejas como servidores web, análisis de datos y automatización.
+Uno de los motivos por los que es tan popular es su enorme ecosistema de bibliotecas, como pandas, NumPy, scikit-learn y Django. Gracias a estas herramientas, es elegido tanto por científicos de datos como por desarrolladores web.
+Además, Python es multiplataforma, lo que significa que el mismo código puede ejecutarse en Windows, macOS o Linux sin apenas modificaciones. Su comunidad activa y la documentación abundante convierten a Python en una excelente elección para principiantes y expertos por igual.
+Por último, muchas universidades enseñan Python como primer lenguaje porque facilita el aprendizaje de conceptos como estructuras de control, funciones, clases y manipulación de archivos.
