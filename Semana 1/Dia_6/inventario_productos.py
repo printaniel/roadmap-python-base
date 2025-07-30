@@ -1,3 +1,4 @@
+import logging.config
 import openpyxl
 import os
 from rich import print
@@ -5,19 +6,30 @@ from rich.console import Console
 from rich .table import Table
 from openpyxl import Workbook, load_workbook
 import msvcrt
+from Dia_7 import excepciones
+import logging 
+
+logging.basicConfig(
+    level = logging.INFO,
+    format = '{asctime} | {levelname}: {message}',
+    style = '{',
+    datefmt= '%Y-%m-%d %H:%M:%S',
+    handlers= [logging.FileHandler(filename = "app_log", mode = 'a', encoding= "utf-8")]
+
+)
+
 
 archivo = "inventario_producto.xlsx"
 salida = False
 
 def main():
     
+    logging.info("Inicio de la aplicación")
     while not salida:
         mostrar_tabla()
         eleccion_de_opcion()
         borrar_datos_consola()
-    
-    
-    
+        
     return 0
 
 # creasion e impresion de una tabla de Gestion de Productos 
@@ -60,6 +72,7 @@ def salir():
     global salida
     salida = True
     print("[red]Has salido del programa[/red]")
+    logging.info("Termina el programa")
 
 def registrar_producto():
     global archivo
@@ -78,34 +91,51 @@ def registrar_producto():
         id = hoja.max_row
         
     hoja.append([id,nombre,precio,cantidad_stock])      
-    inventario.save(archivo)
+    try:
+        inventario.save(archivo)
+        producto_registrado_log()
+    except PermissionError as e:
+        inventario_en_uso_log()
+        raise excepciones.PermisoEdicionDenegado() from e
 
     
 
 def eliminar_producto():
     global archivo
-       
-    if os.path.exists(archivo):
-        
-        inventario = load_workbook(archivo)
-        hoja = inventario.active
-        
-        if hoja.max_row > 1:
-            nombre = pedir_nombre_con_duplicados().strip()
-            fila = buscar_fila_producto(nombre)            
+    
+    try:   
+        if os.path.exists(archivo):
+            
+            inventario = load_workbook(archivo)
+            hoja = inventario.active
+            
+            if hoja.max_row > 1:
+                nombre = pedir_nombre_con_duplicados().strip()
+                fila = buscar_fila_producto(nombre)            
 
-            if fila != None:
-                hoja.delete_rows(fila)
-                print("[green]Éxito: [/green] El producto ha sido eliminado correctamente")
-                inventario.save(archivo)
-                
+                if fila != None:
+                    producto_encontrado_log()
+                    hoja.delete_rows(fila)                   
+                    inventario.save(archivo)
+                    producto_eliminado_log()
+                    print("[green]Éxito: [/green] El producto ha sido eliminado correctamente")
+                                       
+                else:
+                    producto_no_encontrado_log()
+                    raise excepciones.ProductoNoEncontrado(nombre)
             else:
-                print("[red]ERROR: [/red] No se ha encontrado el producto a eliminar")
+                inventario_vacio_log()
+                raise excepciones.InventarioVacioError()
+            
         else:
-            print("[red]ERROR: [/red]El inventario esta vacío")
-        
-    else:
-        print("[red]ERROR: [/red]No existe ningun inventario de productos")
+            inventario_inexistente_log()
+            raise excepciones.InventarioNoEncontradoError()
+    except PermissionError as e:
+        inventario_en_uso_log()
+        raise excepciones.PermisoEdicionDenegado() from e
+    
+    except Exception as e :
+        print(f"[red]ERROR: [/red]{e}")
     
 def buscar_fila_producto(nombre):
     global archivo
@@ -143,6 +173,7 @@ def pedir_nombre():
             validar_nombre(nombre)
             es_valido = True 
         except Exception as e:
+            datos_invalidos_log()
             print(f"[red]ERROR: [/red] {e}")
             
     return nombre
@@ -155,6 +186,7 @@ def pedir_nombre_con_duplicados():
             validar_nombre_con_duplicados(nombre)
             es_valido = True 
         except Exception as e:
+            datos_invalidos_log()
             print(f"[red]ERROR: [/red] {e}")
             
     return nombre
@@ -168,6 +200,7 @@ def pedir_precio():
             validar_precio(precio)
             es_valido = True 
         except Exception as e:
+            datos_invalidos_log()
             print(f"[red]ERROR: [/red] {e}")
             
     return precio
@@ -182,6 +215,7 @@ def pedir_cantidad_stock():
             validar_cantidad_stock(cantidad_stock)
             es_valida = True 
         except Exception as e:
+            datos_invalidos_log()
             print(f"[red]ERROR: [/red] {e}")
             
     return cantidad_stock
@@ -194,11 +228,14 @@ def validar_nombre(nombre):
     nombre = nombre.strip()
     
     if len(nombre) == 0:
-        raise ValueError("El nombre no puede estar vacio")
+        
+        raise excepciones.NombreVacio()
      
     for letra in nombre:
         if not letra.isalpha() and not letra == " ":
-            raise ValueError("El nombre solo puede contener letras")
+            raise excepciones.NombreAlfabeticoInvalido(nombre)
+
+        
     # Comprobar duplicados
     if os.path.exists(archivo):
         
@@ -207,7 +244,7 @@ def validar_nombre(nombre):
         
         fila = buscar_fila_producto(nombre)
         if fila != None:
-            raise ValueError("Ya existe un producto con ese nombre")
+            raise excepciones.NombreDuplicado(nombre)
            
     return nombre   
 
@@ -221,7 +258,7 @@ def validar_nombre_con_duplicados(nombre):
      
     for letra in nombre:
         if not letra.isalpha() and not letra == " ":
-            raise ValueError("El nombre solo puede contener letras")         
+            raise excepciones.NombreAlfabeticoInvalido(nombre)         
     
 def validar_precio(precio):
     precio = precio.strip()
@@ -231,11 +268,11 @@ def validar_precio(precio):
         precio = float(precio)
         es_numero = True
     except:
-        raise ValueError("Solo se aceptan valores numericos")
+        raise excepciones.ValorNoNumerico()
     
     if es_numero:
         if precio < 0:
-            raise ValueError("El precio no puede ser un valor negativo")
+            raise excepciones.NumeroNoPositivo()
         
     return precio
     
@@ -247,95 +284,122 @@ def validar_cantidad_stock(numero):
         numero = int(numero)
         es_numero = True
     except:
-        raise ValueError("Solo se aceptan numeros enteros")
+        raise excepciones.NumeroNoEntero()
     
     if es_numero:
         if numero < 0:
-            raise ValueError("La cantidad en stock no puede ser negativa")
+            raise excepciones.NumeroNoPositivo()
 
  
 def mostrar_todos_productos():
     global archivo
-       
-    if os.path.exists(archivo):       
-        inventario = load_workbook(archivo)
-        hoja = inventario.active
-        contador = 1
-        
-        if hoja.max_row > 1:
-               print("\n")
-               for producto in hoja.iter_rows(values_only = False, min_row = 2):
-                   print(f"Producto #{contador}")
-                   print(f"ID: {producto[0].value}")
-                   print(f"Nombre: {producto[1].value}")
-                   print(f"Precio: {producto[2].value}")
-                   print(f"Cantidad en stock: {producto[3].value}")
-                   print("\n")
-                   contador += 1
+    try: 
+        if os.path.exists(archivo):       
+            inventario = load_workbook(archivo)
+            hoja = inventario.active
+            contador = 1
+            
+            if hoja.max_row > 1:
+                print("\n")
+                for producto in hoja.iter_rows(values_only = False, min_row = 2):
+                    print(f"Producto #{contador}")
+                    print(f"ID: {producto[0].value}")
+                    print(f"Nombre: {producto[1].value}")
+                    print(f"Precio: {producto[2].value}")
+                    print(f"Cantidad en stock: {producto[3].value}")
+                    print("\n")
+                    contador += 1
+            else:
+                inventario_vacio_log()
+                raise excepciones.InventarioVacioError()
+                
         else:
-            print("[red]ERROR: [/red]El inventario esta vacío")
-        
-    else:
-        print("[red]ERROR: [/red]No existe ningun inventario de productos")    
+            inventario_inexistente_log()
+            raise excepciones.InventarioNoEncontradoError()  
+    except Exception as e:
+        print(f"[red]ERROR: [/red]{e}") 
 
 def buscar_producto():
     
-    if os.path.exists(archivo):       
-        inventario = load_workbook(archivo)
-        hoja = inventario.active   
-        encontrado = False     
-        if hoja.max_row > 1:
+    try:
+        if os.path.exists(archivo):       
+            inventario = load_workbook(archivo)
+            hoja = inventario.active   
+            encontrado = False     
+            if hoja.max_row > 1:
+                
+                nombre = pedir_nombre_con_duplicados().strip()
+                
+                for producto in hoja.iter_rows(values_only = False, min_row = 2): 
+                    if nombre == producto[1].value:
+                        print("\n")
+                        print(f"[greeen]Producto Encontrado:[/green] ")
+                        print(f"ID: {producto[0].value}")
+                        print(f"Nombre: {producto[1].value}")
+                        print(f"Precio: {producto[2].value}")
+                        print(f"Cantidad en stock: {producto[3].value}")
+                        print("\n")
+                        encontrado = True
+                if not encontrado:
+                    producto_no_encontrado_log()
+                    raise excepciones.ProductoNoEncontrado(nombre)
+                    
+            else:
+                inventario_vacio_log()
+                raise excepciones.InventarioVacioError()
             
-            nombre = pedir_nombre_con_duplicados().strip()
-            
-            for producto in hoja.iter_rows(values_only = False, min_row = 2): 
-                if nombre == producto[1].value:
-                   print("\n")
-                   print(f"[greeen]Producto Encontrado:[/green] ")
-                   print(f"ID: {producto[0].value}")
-                   print(f"Nombre: {producto[1].value}")
-                   print(f"Precio: {producto[2].value}")
-                   print(f"Cantidad en stock: {producto[3].value}")
-                   print("\n")
-                   encontrado = True
-            if not encontrado:
-                print("[red]ERROR: [/red]El producto no ha sido encontrado")
-                   
         else:
-            print("[red]ERROR: [/red]El inventario esta vacío")
-        
-    else:
-        print("[red]ERROR: [/red]No existe ningun inventario de productos")
+            inventario_inexistente_log()
+            raise excepciones.InventarioNoEncontradoError()
+    except PermissionError as e:
+        inventario_en_uso_log()
+        raise excepciones.PermisoEdicionDenegado() from e
+
+    except Exception as e: 
+        e = str(e).replace("[", "[[").replace("]", "]]")  # Escapa corchetes
+        print(f"[red]ERROR: [/red] {e}")
     
 
 def actualizar_producto():
-    if os.path.exists(archivo):       
-        inventario = load_workbook(archivo)
-        hoja = inventario.active   
-        actualizado = False
-             
-        if hoja.max_row > 1:
+    
+    try:
+        if os.path.exists(archivo):       
+            inventario = load_workbook(archivo)
+            hoja = inventario.active   
+            actualizado = False
             
-            print("[blue]INFO:[/blue]Se necesita el nombre del producto a buscar: ")
-            nombre = pedir_nombre_con_duplicados().strip()
+            if hoja.max_row > 1:
+                
+                print("[blue]INFO:[/blue]Se necesita el nombre del producto a buscar: ")
+                nombre = pedir_nombre_con_duplicados().strip()
+                
+                for producto in hoja.iter_rows(values_only = False, min_row = 2): 
+                    if nombre == producto[1].value:
+                        print("[blue]INFO: [/blue]Escriba los nuevos datos para el producto a actualizar")          
+                        producto[1].value ,producto[2].value, producto[3].value = pedir_datos_producto() 
+                        actualizado = True
+                        producto_actualizado_log()
+                        print(f"[green]ÉXITO:[/green]Se ha actualizado el producto exitosamente")       
+                
+                if not actualizado:
+                    producto_no_encontrado_log()
+                    raise excepciones.ProductoNoEncontrado(nombre)
+                    
+                inventario.save(archivo)               
+            else:
+                inventario_vacio_log()
+                raise excepciones.InventarioVacioError()
             
-            for producto in hoja.iter_rows(values_only = False, min_row = 2): 
-                if nombre == producto[1].value:
-                   print("[blue]INFO: [/blue]Escriba los nuevos datos para el producto a actualizar")          
-                   producto[1].value ,producto[2].value, producto[3].value = pedir_datos_producto() 
-                   actualizado = True
-                   print(f"[green]ÉXITO:[/green]Se ha actualizado el producto exitosamente")       
-             
-            if not actualizado:
-                 print("[red]ERROR: [/red] No se ha encontrado el producto")
-                 
-            inventario.save(archivo)                   
         else:
-            print("[red]ERROR: [/red]El inventario esta vacío")
+            inventario_inexistente_log()
+            raise excepciones.InventarioNoEncontradoError()
+    except PermissionError as e:
+        inventario_en_uso_log()
+        raise excepciones.PermisoEdicionDenegado() from e
+    
+    except Exception as e:
+        print(f"[red]ERROR: [/red]{e}")
         
-    else:
-        print("[red]ERROR: [/red]No existe ningun inventario de productos")
-
 def borrar_datos_consola():
     global salida
     
@@ -344,4 +408,33 @@ def borrar_datos_consola():
         tecla = msvcrt.getch()
         if tecla != None:
             os.system('cls' if os.name == 'nt' else 'clear')
+
+def datos_invalidos_log():
+    logging.error("El usuario ha enviado datos invalidos ")
+    
+def inventario_inexistente_log():
+    logging.error("El usuario intenta usar el registro no creado")
+    
+def inventario_vacio_log():
+    logging.error("El usuario intenta hacer una accion en un inventario vacio")
+
+def inventario_en_uso_log():
+    logging.error("El usuario no tiene permisos para editar el inventario")
+    
+def producto_no_encontrado_log():
+    logging.error("El usuario intentó buscar un producto que no existe")
+
+def producto_registrado_log():
+    logging.info("Se ha registrado un nuevo producto")
+
+def producto_encontrado_log():
+    logging.info("Se ha encontrado el producto buscado")
+
+def producto_eliminado_log():
+    logging.info("Se ha eliminado un producto correctamente ")
+
+def producto_actualizado_log():
+    logging.info("Producto actualizado")
+
+
 main()
