@@ -7,14 +7,26 @@ from rich .table import Table
 from openpyxl import Workbook, load_workbook
 import msvcrt
 from Dia_7 import excepciones
-import logging 
+import logging
+from logging.handlers import RotatingFileHandler 
+
+
+# Configuración del RotatingFileHandler
+rotating_handler = RotatingFileHandler(
+    filename="app_log",          # Nombre del archivo principal
+    mode='a',                   # Modo append (igual que tu configuración actual)
+    maxBytes=1024,       # 1MB por archivo (ajusta según necesidades)
+    backupCount=3,              # Mantener 3 archivos de backup
+    encoding='utf-8'            # Mismo encoding que usabas
+)
+
 
 logging.basicConfig(
     level = logging.INFO,
     format = '{asctime} | {levelname}: {message}',
     style = '{',
     datefmt= '%Y-%m-%d %H:%M:%S',
-    handlers= [logging.FileHandler(filename = "app_log", mode = 'a', encoding= "utf-8")]
+    handlers= [rotating_handler],
 
 )
 

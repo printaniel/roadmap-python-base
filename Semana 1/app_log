@@ -1,17 +1,6 @@
-2025-07-30 09:25:38 | INFO:Inicio de la aplicación
-2025-07-30 09:25:48 | INFO:Se ha registrado un nuevo producto
-2025-07-30 09:25:52 | ERROR:El usuario ha enviado datos invalidos 
-2025-07-30 09:25:59 | ERROR:El usuario ha enviado datos invalidos 
-2025-07-30 09:26:08 | INFO:Se ha registrado un nuevo producto
-2025-07-30 09:26:15 | INFO:Se ha encontrado el producto buscado
-2025-07-30 09:26:15 | INFO:Se ha eliminado un producto correctamente 
-2025-07-30 09:26:20 | INFO:Se ha encontrado el producto buscado
-2025-07-30 09:26:20 | INFO:Se ha eliminado un producto correctamente 
-2025-07-30 09:26:23 | ERROR:El usuario intenta hacer una accion en un inventario vacio
-2025-07-30 09:26:23 | ERROR:El usuario intenta hacer una accion en un inventario vacio
-2025-07-30 09:26:25 | INFO:Termina el programa
-2025-07-30 09:27:00 | INFO: Inicio de la aplicación
-2025-07-30 09:27:05 | INFO: Se ha registrado un nuevo producto
-2025-07-30 09:27:08 | ERROR: El usuario ha enviado datos invalidos 
-2025-07-30 09:27:09 | ERROR: El usuario intentó buscar un producto que no existe
-2025-07-30 09:27:11 | INFO: Termina el programa
+2025-07-30 10:16:04 | ERROR: El usuario intentó buscar un producto que no existe
+2025-07-30 10:16:10 | ERROR: El usuario ha enviado datos invalidos 
+2025-07-30 10:16:11 | ERROR: El usuario ha enviado datos invalidos 
+2025-07-30 10:16:13 | ERROR: El usuario intentó buscar un producto que no existe
+2025-07-30 10:16:18 | ERROR: El usuario intentó buscar un producto que no existe
+2025-07-30 10:16:19 | INFO: Termina el programa
